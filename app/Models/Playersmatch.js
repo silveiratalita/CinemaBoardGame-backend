@@ -9,11 +9,11 @@ class Playersmatch extends Model {
   }
 
   user () {
-    return this.hasOne('App/Models/User')
+    return this.hasMany('App/Models/User')
   }
 
   match () {
-    return this.hasOne('App/Models/Match')
+    return this.hasMany('App/Models/Match')
   }
 }
 
