@@ -1,7 +1,11 @@
 'use strict'
 const Match = use('App/Models/Match')
 const User = use('App/Models/User')
-const PlayersMatch = use('App/Models/PlayersMatch')
+const PlayerMatches = use('App/Models/PlayerMatches')
+
+const Logger = use('Logger')
+Logger.level = 'debug'
+
 class MatchController {
   async createMatch ({ request, response }) {
     try {
@@ -13,8 +17,17 @@ class MatchController {
           .status(404)
           .send('User Not Found')
       }
+
+      Logger.debug('MatchControler:userExist $j', userExist)
+
       const matchCreated = await Match.create({ room_name: roomName, number_of_rounds: rounds, date: date })
-      const playerAndMatch = await PlayersMatch.create({ user_id: userExist.id, match_id: matchCreated.id })
+
+      Logger.debug('MatchControler:matchCreated $j', matchCreated)
+
+      const playerAndMatch = await PlayerMatches.create({ user_id: userExist.id, match_id: matchCreated.id })
+
+      Logger.debug('MatchControler:playerAndMatch $j', playerAndMatch)
+
       return (matchCreated)
     } catch (err) {
       console.log(err)

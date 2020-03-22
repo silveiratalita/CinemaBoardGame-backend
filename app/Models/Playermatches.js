@@ -3,7 +3,7 @@
 /** @type {typeof import('@adonisjs/lucid/src/Lucid/Model')} */
 const Model = use('Model')
 
-class Playersmatch extends Model {
+class Playermatches extends Model {
   static boot () {
     super.boot()
   }
@@ -17,4 +17,4 @@ class Playersmatch extends Model {
   }
 }
 
-module.exports = Playersmatch
+module.exports = Playermatches
