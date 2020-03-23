@@ -26,17 +26,13 @@ class MatchController {
 
       const playerAndMatch = await PlayerMatches.create({ user_id: userExist.id, match_id: matchCreated.id })
 
-      Logger.debug('MatchControler:playerAndMatch $j', playerAndMatch)
+      Logger.debug('PLAYERRRRRR=========E MATCHHH', playerAndMatch)
 
       return (matchCreated)
     } catch (err) {
       console.log(err)
       return err
     }
-  }
-
-  async calculateTime (rounds, players) {
-    return ((players * 3) * rounds)
   }
 }
 

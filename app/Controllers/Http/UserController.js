@@ -1,12 +1,18 @@
 'use strict'
 const crypto = require('crypto')
 const User = use('App/Models/User')
+const Logger = use('Logger')
+Logger.level = 'debug'
 class UserController {
   async store ({ request }) {
-    const data = request.only(['username', 'email', 'password'])
-    data.hashkey = crypto.randomBytes(7).toString('hex')
-    const user = await User.create(data)
-    return user
+    try {
+      const data = request.only(['username', 'email', 'password'])
+      data.hashkey = crypto.randomBytes(7).toString('hex')
+      const user = await User.create(data)
+      return user
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   async getUser ({ request, response }) {
