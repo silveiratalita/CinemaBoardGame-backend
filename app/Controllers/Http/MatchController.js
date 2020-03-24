@@ -42,20 +42,27 @@ class MatchController {
 
       const matchesOfPlayer = await PlayerMatches.all({ user_id: userId })
       Logger.debug('matches=>', matchesOfPlayer)
+
       const allIds = matchesOfPlayer.rows.map(match => match.id)
+
       const allMatches = await Database
         .from('matches')
         .whereIn('id', allIds)
 
-      // for (const match of Object.keys(matchesOfPlayer)) {
-      //   Logger.debug('matches=>', match)
-      // const matchfound = await Database
-      //   .table('matches').where('id', match.id)
-      // allMatches.push(matchfound)
-      // }
+      const matchesWithPlayers = await Database
+        .from('playermatches')
+        .whereIn('match_id', allIds)
 
-      // Logger.debug('matches=>', allMatches)
-      return response.send(allMatches)
+      const playersIds = matchesWithPlayers.map(match => match.user_id)
+
+      const matchesComplete = {
+        playersIds,
+        allMatches
+      }
+
+      Logger.debug('matches=>', allMatches)
+      // Logger.debug('players=>', allPlayers)
+      return response.send(matchesComplete)
     } catch (err) {
       console.log(err)
       return response.send(err)
