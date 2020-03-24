@@ -11,3 +11,5 @@ tmp
 database/*.sqlite
 .DS_Store
 yarn.lock
+yarn-error.log
+yarn.lock
