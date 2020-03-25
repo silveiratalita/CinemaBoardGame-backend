@@ -7,6 +7,10 @@ class Match extends Model {
   static boot () {
     super.boot()
   }
+
+  playermatches () {
+    return this.belongsToMany('App/Model/Playermatche')
+  }
 }
 
 module.exports = Match

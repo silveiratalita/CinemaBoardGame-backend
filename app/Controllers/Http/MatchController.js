@@ -14,22 +14,27 @@ class MatchController {
       const date = new Date()
       const userExist = await User.findByOrFail('email', userEmail)
       if (!userExist) {
-        return response
-          .status(404)
-          .send('User Not Found')
+        return response.status(404).send('User Not Found')
       }
 
       Logger.debug('MatchControler:userExist $j', userExist)
 
-      const matchCreated = await Match.create({ room_name: roomName, number_of_rounds: rounds, date: date })
+      const matchCreated = await Match.create({
+        room_name: roomName,
+        number_of_rounds: rounds,
+        date: date
+      })
 
       Logger.debug('MatchControler:matchCreated $j', matchCreated)
 
-      const playerAndMatch = await PlayerMatches.create({ user_id: userExist.id, match_id: matchCreated.id })
+      const playerAndMatch = await PlayerMatches.create({
+        user_id: userExist.id,
+        match_id: matchCreated.id
+      })
 
       Logger.debug('PLAYERRRRRR=========E MATCHHH', playerAndMatch)
 
-      return (matchCreated)
+      return matchCreated
     } catch (err) {
       console.log(err)
       return err
@@ -41,28 +46,41 @@ class MatchController {
       const { userId } = request.all()
 
       const matchesOfPlayer = await PlayerMatches.all({ user_id: userId })
-      Logger.debug('matches=>', matchesOfPlayer)
+      Logger.debug('matches aqui=>', matchesOfPlayer)
 
       const allIds = matchesOfPlayer.rows.map(match => match.id)
 
-      const allMatches = await Database
-        .from('matches')
-        .whereIn('id', allIds)
+      const allMatches = await Database.from('matches')
+        .innerJoin('playermatches', 'matches.id', 'playermatches.match_id')
+        .innerJoin('users', 'users.id', 'playermatches.user_id')
+        .whereIn('matches.id', allIds)
 
-      const matchesWithPlayers = await Database
-        .from('playermatches')
-        .whereIn('match_id', allIds)
+      Logger.debug('alllllmatches---aquii', allMatches)
 
-      const playersIds = matchesWithPlayers.map(match => match.user_id)
-
-      const matchesComplete = {
-        playersIds,
-        allMatches
+      let test
+      for (const match in allMatches) {
+        let obj = {
+          players: []
+        }
+        for (const id in allMatches) {
+          if (allMatches.hasOwnPropety(id) && id === match.id) {
+            obj.players.push(match.username)
+          }
+        }
+        obj = {
+          idPartida: match.match_id,
+          date: match.date,
+          winner: match.winner,
+          start_time: match.start_time,
+          end_time: match.start_time,
+          duration: match.start_time,
+          number_of_players: match.number_of_players,
+          number_of_rounds: match.number_of_rounds,
+          room_name: match.room_name
+        }
+        test = obj
       }
-
-      Logger.debug('matches=>', allMatches)
-      // Logger.debug('players=>', allPlayers)
-      return response.send(matchesComplete)
+      return response.send(test)
     } catch (err) {
       console.log(err)
       return response.send(err)

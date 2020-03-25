@@ -13,3 +13,4 @@ database/*.sqlite
 yarn.lock
 yarn-error.log
 yarn.lock
+.DS_Store
