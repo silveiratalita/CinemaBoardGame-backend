@@ -49,38 +49,14 @@ class MatchController {
       Logger.debug('matches aqui=>', matchesOfPlayer)
 
       const allIds = matchesOfPlayer.rows.map(match => match.id)
-
-      const allMatches = await Database.from('matches')
-        .innerJoin('playermatches', 'matches.id', 'playermatches.match_id')
-        .innerJoin('users', 'users.id', 'playermatches.user_id')
-        .whereIn('matches.id', allIds)
-
-      Logger.debug('alllllmatches---aquii', allMatches)
-
-      let test
-      for (const match in allMatches) {
-        let obj = {
-          players: []
-        }
-        for (const id in allMatches) {
-          if (allMatches.hasOwnPropety(id) && id === match.id) {
-            obj.players.push(match.username)
-          }
-        }
-        obj = {
-          idPartida: match.match_id,
-          date: match.date,
-          winner: match.winner,
-          start_time: match.start_time,
-          end_time: match.start_time,
-          duration: match.start_time,
-          number_of_players: match.number_of_players,
-          number_of_rounds: match.number_of_rounds,
-          room_name: match.room_name
-        }
-        test = obj
+      var array = Array.from(allIds.keys())
+      Logger.debug('array', array)
+      for (const [key, value] of allIds.entries()) {
+        Logger.debug('value', value)
+        // const a = await PlayerMatches.findByOrFail()
       }
-      return response.send(test)
+
+      return response.send()
     } catch (err) {
       console.log(err)
       return response.send(err)
