@@ -44,48 +44,42 @@ class MatchController {
   async getMatches ({ request, response }) {
     try {
       const { userId } = request.all()
-      const matches = await Database.raw(
-        `select
-	u2.username, m."date", m.room_name, m.winner, m.id as "match_id"
-from
-	users u2
-inner join playermatches p2 on
-	(u2.id = p2.user_id)
-inner join matches m on
-	(p2.match_id = m.id)
-where
-	match_id in (
-	select
-		m.id
-	from
-		users u2
-	inner join playermatches p2 on
-		(u2.id = p2.user_id)
-	inner join matches m on
-		(p2.match_id = m.id)
-	where
-		u2.id = ${userId}order by m.id	)`
-      )
-      const obj = { players: [] }
-      matches.rows.map(e => {
-        matches.rows.map(el => {
-          if (e.match_id === el.match_id) {
-            obj.players.push(e)
-          } else {
-            Logger.debug('XAU')
-          }
-        })
-      })
+      const matchesResult = await Database.raw(`select m.id, m."date", m.winner from users u2 inner join playermatches p2 on (u2.id = p2.user_id) inner join matches m on (p2.match_id = m.id) where u2.id = ${userId}`)
 
-      // entrar em cada posição
-      // verificar o match_id
-      // formar cada objeto match, com os jogadores, data nome da sala e vencedor.
 
-      return response.send(obj)
+
+      for (let i = 0; i < Object.keys(matchesResult.rows).length; i++) {
+        const m = Object.values(matchesResult.rows[i])
+        Logger.debug(m.id)
+        const players = this.getPlayersOfTheMatch(m.id)
+        Logger.debug(players)
+      }
+
+      return response.send(matchesResult.rows)
     } catch (err) {
       console.log(err)
       return response.send(err)
     }
+  }
+
+  async getPlayersOfTheMatch (matchID) {
+    const playersOfTheMatchResult = []
+    const playersQuery = `select
+                         u2.username
+                       from
+                         users u2
+                       inner join playermatches p2 on
+                         (u2.id = p2.user_id)
+                       where
+                         p2.match_id = ${matchID}`
+
+    const playersResult = await Database.raw(playersQuery)
+
+    for (let j = 0; j < Object.keys(playersResult.rows).length; j++) {
+      playersOfTheMatchResult[j] = Object.values(playersResult.rows[j])
+    }
+
+    return playersOfTheMatchResult
   }
 }
 
