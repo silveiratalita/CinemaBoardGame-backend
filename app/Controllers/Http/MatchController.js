@@ -44,19 +44,44 @@ class MatchController {
   async getMatches ({ request, response }) {
     try {
       const { userId } = request.all()
+      const matches = await Database.raw(
+        `select
+	u2.username, m."date", m.room_name, m.winner, m.id as "match_id"
+from
+	users u2
+inner join playermatches p2 on
+	(u2.id = p2.user_id)
+inner join matches m on
+	(p2.match_id = m.id)
+where
+	match_id in (
+	select
+		m.id
+	from
+		users u2
+	inner join playermatches p2 on
+		(u2.id = p2.user_id)
+	inner join matches m on
+		(p2.match_id = m.id)
+	where
+		u2.id = ${userId}order by m.id	)`
+      )
+      const obj = { players: [] }
+      matches.rows.map(e => {
+        matches.rows.map(el => {
+          if (e.match_id === el.match_id) {
+            obj.players.push(e)
+          } else {
+            Logger.debug('XAU')
+          }
+        })
+      })
 
-      const matchesOfPlayer = await PlayerMatches.all({ user_id: userId })
-      Logger.debug('matches aqui=>', matchesOfPlayer)
+      // entrar em cada posição
+      // verificar o match_id
+      // formar cada objeto match, com os jogadores, data nome da sala e vencedor.
 
-      const allIds = matchesOfPlayer.rows.map(match => match.match_id)
-      let a
-      for (const [key, value] of allIds.entries()) {
-        a = await Database.from('playermatches').where('match_id',value)
-        Logger.debug('resultado')
-        Logger.debug(a)
-      }
-
-      return response.send(a)
+      return response.send(obj)
     } catch (err) {
       console.log(err)
       return response.send(err)
