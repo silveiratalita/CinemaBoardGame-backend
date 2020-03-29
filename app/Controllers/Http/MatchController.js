@@ -3,6 +3,7 @@ const Match = use('App/Models/Match')
 const User = use('App/Models/User')
 const PlayerMatches = use('App/Models/PlayerMatches')
 const Database = use('Database')
+const Antl = use('Antl')
 
 const Logger = use('Logger')
 Logger.level = 'debug'
@@ -45,24 +46,35 @@ class MatchController {
     try {
       const userId = params.userId
       // busca os jogos do jogador
-      const matchesResult =
-        await Database
-          .from('users')
-          .innerJoin('playermatches', 'playermatches.user_id', 'users.id')
-          .innerJoin('matches', 'matches.id', 'playermatches.match_id')
-          .where('users.id', userId)
-          .select('matches.id', 'matches.date', 'matches.winner', 'room_name', 'number_of_rounds')
+      const matchesResult = await Database.from('users')
+        .innerJoin('playermatches', 'playermatches.user_id', 'users.id')
+        .innerJoin('matches', 'matches.id', 'playermatches.match_id')
+        .where('users.id', userId)
+        .select(
+          'matches.id',
+          'matches.date',
+          'matches.winner',
+          'room_name',
+          'number_of_rounds'
+        )
 
       // busca os jogadores de cada jogo e insere no objeto para retorno
       for (let i = 0; i < matchesResult.length; i++) {
         const m = matchesResult[i].id
-        const players = await Database
-          .select('users.id', 'users.username', 'users.email')
+        const players = await Database.select(
+          'users.id',
+          'users.username',
+          'users.email'
+        )
           .from('users')
           .innerJoin('playermatches', 'users.id', 'playermatches.user_id')
           .where('playermatches.match_id', m)
         // insere no objeto para retorno
+        const formateDate = Antl.formatDate(matchesResult[i].date, {
+          hour12: true
+        })
         matchesResult[i].players = players
+        matchesResult[i].date = formateDate
       }
 
       return response.send(matchesResult)

@@ -30,7 +30,8 @@ class UserController {
       return {
         username: userFound.username,
         email: userFound.email,
-        hashkey: userFound.hashkey
+        hashkey: userFound.hashkey,
+        id: userFound.id
       }
     } catch (err) {
       console.log(err)
