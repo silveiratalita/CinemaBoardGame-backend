@@ -41,10 +41,10 @@ class MatchController {
     }
   }
 
-  async getMatches ({ request, response }) {
+  async getMatches ({ params, request, response }) {
     try {
-      const { userId } = request.all()
-      //busca os jogos do jogador
+      const userId = params.userId
+      // busca os jogos do jogador
       const matchesResult =
         await Database
           .from('users')
@@ -53,7 +53,7 @@ class MatchController {
           .where('users.id', userId)
           .select('matches.id', 'matches.date', 'matches.winner', 'room_name', 'number_of_rounds')
 
-      //busca os jogadores de cada jogo e insere no objeto para retorno
+      // busca os jogadores de cada jogo e insere no objeto para retorno
       for (let i = 0; i < matchesResult.length; i++) {
         const m = matchesResult[i].id
         const players = await Database
@@ -61,7 +61,7 @@ class MatchController {
           .from('users')
           .innerJoin('playermatches', 'users.id', 'playermatches.user_id')
           .where('playermatches.match_id', m)
-        //insere no objeto para retorno
+        // insere no objeto para retorno
         matchesResult[i].players = players
       }
 
